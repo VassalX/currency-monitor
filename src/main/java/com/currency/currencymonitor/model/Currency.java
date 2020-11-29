@@ -1,15 +1,20 @@
 package com.currency.currencymonitor.model;
 
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @ToString
 @Entity
-@Table(name = "tutorials")
+@Table(name = "currency")
 public class Currency {
     @ToString.Exclude
     @Getter
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Getter @Setter
@@ -35,4 +40,8 @@ public class Currency {
     @Getter @Setter
     @Column(name = "timestamp")
     private long timestamp;
+
+    @Getter @Setter
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "currency")
+    private List<History> histories = new ArrayList<>();
 }
