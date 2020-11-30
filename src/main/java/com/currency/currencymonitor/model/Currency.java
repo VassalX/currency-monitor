@@ -21,11 +21,13 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @JsonProperty("name")
     @NonNull
     @Getter @Setter
     @Column(name = "short_name", unique=true)
     private String shortName;
 
+    @JsonProperty("fullName")
     @NonNull
     @Getter @Setter
     @Column(name = "name")
@@ -51,6 +53,7 @@ public class Currency {
     @Column(name = "price")
     private Double price;
 
+    @JsonProperty("lastUpdateTimestamp")
     @NonNull
     @Getter @Setter
     @Column(name = "timestamp")
