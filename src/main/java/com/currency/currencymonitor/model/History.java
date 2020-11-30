@@ -1,29 +1,36 @@
 package com.currency.currencymonitor.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 
+@RequiredArgsConstructor
+@NoArgsConstructor
 @ToString
 @Entity
 @Table(name = "history")
 public class History {
+    @JsonIgnore
     @ToString.Exclude
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "currency_id")
+    @JsonIgnore
+    @ToString.Exclude
+    @Getter @Setter
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "currency_id", nullable = false)
     private Currency currency;
 
+    @NonNull
     @Getter @Setter
     @Column(name = "price")
     private Double price;
 
+    @NonNull
     @Getter @Setter
     @Column(name = "timestamp")
     private long timestamp;
