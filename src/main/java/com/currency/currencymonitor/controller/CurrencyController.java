@@ -35,8 +35,8 @@ public class CurrencyController {
         try {
             List<Currency> newCurrencies = new ArrayList<>();
             for (Currency currency : currencies){
-                String shortName = currency.getShortName();
-                Optional<Currency> foundCurrency = currencyRepository.findByShortName(shortName);
+                String name = currency.getName();
+                Optional<Currency> foundCurrency = currencyRepository.findByName(name);
                 Currency _currency;
                 if(foundCurrency.isPresent()){
                     _currency = foundCurrency.get();
@@ -82,16 +82,16 @@ public class CurrencyController {
                                                       @RequestParam(name = "limit") int limit,
                                                       @RequestParam(name = "offset") int offset,
                                                       @RequestParam(name = "name", required = false) String name,
-                                                      @RequestParam(name = "orderedBy") String orderedBy,
+                                                      @RequestParam(name = "orderBy") String orderBy,
                                                       @RequestParam(name = "direction") String direction){
         try{
-            Sort sorting = (direction.equals("asc")) ? Sort.by(orderedBy).ascending() : Sort.by(orderedBy).descending();
-            Pageable paging = PageRequest.of(offset, limit, sorting);
+            Sort sorting = (direction.toUpperCase().equals("ASC")) ? Sort.by(orderBy).ascending() : Sort.by(orderBy).descending();
+            Pageable paging = PageRequest.of(offset / limit, limit, sorting);
             Page<Currency> pagedResult;
-            if(name == null){
-                pagedResult = currencyRepository.findAllByType(type, paging);
+            if(name != null){
+                pagedResult = currencyRepository.findAllByTypeAndNameContainingIgnoreCase(type, name, paging);
             } else {
-                pagedResult = currencyRepository.findAllByTypeAndShortNameContainingIgnoreCase(type, name, paging);
+                pagedResult = currencyRepository.findAllByType(type, paging);
             }
             return new ResponseEntity<>(pagedResult.getContent(), HttpStatus.OK);
         } catch (Exception e) {
@@ -99,18 +99,33 @@ public class CurrencyController {
         }
     }
 
-    //GET /currency-updates?id=
+    // GET /currency-updates?id= - currency price update, {previousPrice: 1000, currentPrice: 1002, currentPriceUpdateTimestamp: some_timestamp}
     @GetMapping(value = "/currency-updates")
     public ResponseEntity<CurrencyPriceResponse> getCurrencyUpdates(@RequestParam long id){
         Optional<Currency> currency = currencyRepository.findById(id);
 
         if (currency.isPresent()){
             Currency _currency = currency.get();
+            History prevHistory = historyRepository.findByCurrencyLastPrice(_currency.getId()).get(0);
             CurrencyPriceResponse response = new CurrencyPriceResponse(
-                    _currency.getPrice(),
+                    prevHistory.getPrice(),
                     _currency.getPrice(),
                     _currency.getTimestamp()
             );
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // GET /currency-historical?id= - all currency prices, [{date: some_timestamp, price: 1002}]
+    @GetMapping(value = "/currency-historical")
+    public ResponseEntity<List<History>> getHistoryOf(@RequestParam long id){
+        Optional<Currency> currency = currencyRepository.findById(id);
+
+        if (currency.isPresent()){
+            Currency _currency = currency.get();
+            List<History> response = historyRepository.findByCurrencyOrderByTimestampDesc(_currency);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -24,14 +24,14 @@ public class Currency {
     @JsonProperty("name")
     @NonNull
     @Getter @Setter
-    @Column(name = "short_name", unique=true)
-    private String shortName;
+    @Column(name = "name", unique=true)
+    private String name;
 
     @JsonProperty("fullName")
     @NonNull
     @Getter @Setter
-    @Column(name = "name")
-    private String name;
+    @Column(name = "full_name")
+    private String fullName;
 
     @NonNull
     @Getter @Setter
