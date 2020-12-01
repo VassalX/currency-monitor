@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
     List<Currency> findAll();
     Optional<Currency> findByShortName(String shortName);
-    Page<Currency> findAllByTypeAndShortName(String type, String shortName, Pageable pageable);
+    Page<Currency> findAllByTypeAndShortNameContainingIgnoreCase(String type, String shortName, Pageable pageable);
     Page<Currency> findAllByType(String type, Pageable pageable);
 }
